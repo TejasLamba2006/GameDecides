@@ -2,7 +2,7 @@
 
 Every few minutes, the game picks a random twist that changes how everyone plays. Maybe you get super speed. Maybe you can't jump. Maybe your inventory gets shuffled. You never know what's coming next.
 
-## What's a twist?
+**What's a twist?**
 
 A twist is a temporary rule change that affects all players. Some help you, some hurt you, some are just weird. The plugin has over 45 different twists built in.
 
@@ -16,7 +16,7 @@ Here are some examples:
 - Shared health between all players
 - Permanent night time
 
-## Good for what?
+**Good for what?**
 
 Works well for:
 
@@ -26,13 +26,13 @@ Works well for:
 - Competitive events
 - Just messing around
 
-## How to use
+**How to use**
 
 Start the twists with `/gamedecides start`. A new twist triggers every few minutes (configurable). Don't like the current twist? Skip it with `/gamedecides skip`.
 
 You can also force specific twists if you want to try something particular.
 
-## Customization
+**Customization**
 
 The config lets you:
 
@@ -41,7 +41,7 @@ The config lets you:
 - Adjust twist duration
 - Change all the messages
 
-## Support
+**Support**
 
 Questions? <https://discord.gg/7fQPG4Grwt>
 
