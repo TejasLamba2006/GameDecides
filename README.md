@@ -18,6 +18,7 @@ GameDecides picks a random "twist" every few minutes that affects all players. S
 ## Twist Categories
 
 **Movement**
+
 - No jumping
 - Super speed
 - Slow motion
@@ -25,6 +26,7 @@ GameDecides picks a random "twist" every few minutes that affects all players. S
 - Dolphins grace
 
 **Combat**
+
 - One hit kills
 - No armor allowed
 - Double damage taken
@@ -32,6 +34,7 @@ GameDecides picks a random "twist" every few minutes that affects all players. S
 - Weakness applied
 
 **Items**
+
 - Inventory shuffle
 - Random item every minute
 - No crafting
@@ -39,12 +42,14 @@ GameDecides picks a random "twist" every few minutes that affects all players. S
 - Inventory lock
 
 **World**
+
 - Permanent night
 - Rain of fire
 - Random teleports
 - Gravity changes
 
 **Misc**
+
 - Shared health
 - No hunger drain
 - Explosion on death
@@ -75,7 +80,7 @@ Set the twist duration, enable/disable specific twists, and customize messages i
 
 ## Support
 
-Discord: https://discord.gg/7fQPG4Grwt
+Discord: <https://discord.gg/7fQPG4Grwt>
 
 ## Requirements
 

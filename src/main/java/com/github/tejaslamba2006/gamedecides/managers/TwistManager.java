@@ -25,7 +25,7 @@ public class TwistManager {
     private final List<Twist> enabledTwists = new ArrayList<>();
     private final Set<String> worldBlacklist = new HashSet<>();
     private final Random random = new Random();
-    
+
     private Twist currentTwist = null;
     private BukkitTask mainTask = null;
     private BukkitTask effectTask = null;
@@ -44,19 +44,20 @@ public class TwistManager {
                 enabledTwists.add(twist);
             }
         }
-        
+
         worldBlacklist.clear();
         worldBlacklist.addAll(plugin.getConfig().getStringList("world-blacklist"));
-        
+
         plugin.getLogger().info("Loaded " + enabledTwists.size() + " enabled twists");
     }
 
     public void start() {
-        if (running) return;
+        if (running)
+            return;
         running = true;
-        
+
         int interval = plugin.getConfig().getInt("twist-interval", 300) * 20; // Convert to ticks
-        
+
         mainTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -67,18 +68,16 @@ public class TwistManager {
 
     public void stop() {
         running = false;
-        
+
         if (mainTask != null) {
             mainTask.cancel();
             mainTask = null;
         }
-        
+
         if (effectTask != null) {
             effectTask.cancel();
             effectTask = null;
         }
-        
-        // Clean up current twist effects
         if (currentTwist != null) {
             cleanupTwist(currentTwist);
         }
@@ -86,73 +85,66 @@ public class TwistManager {
     }
 
     public void skip() {
-        if (!running) return;
+        if (!running)
+            return;
         nextTwist();
     }
 
     private void nextTwist() {
-        // Cleanup previous twist
         if (currentTwist != null) {
             cleanupTwist(currentTwist);
         }
-        
+
         if (effectTask != null) {
             effectTask.cancel();
             effectTask = null;
         }
-        
-        // Select new random twist
         if (enabledTwists.isEmpty()) {
             plugin.getLogger().warning("No twists enabled!");
             return;
         }
-        
+
         currentTwist = enabledTwists.get(random.nextInt(enabledTwists.size()));
-        
-        // Broadcast the twist
         broadcastTwist();
-        
-        // Apply the twist
         applyTwist(currentTwist);
     }
 
     private void broadcastTwist() {
-        if (!plugin.getConfig().getBoolean("broadcast.enabled", true)) return;
-        
+        if (!plugin.getConfig().getBoolean("broadcast.enabled", true))
+            return;
+
         String twistName = getTwistName(currentTwist);
         String twistDesc = getTwistDescription(currentTwist);
-        
+
         String message = plugin.getConfig().getString("broadcast.message", "&6&l⚡ TWIST CHANGE! &e%twist%")
                 .replace("%twist%", twistName);
         String descMessage = plugin.getConfig().getString("broadcast.description-message", "&7%description%")
                 .replace("%description%", twistDesc);
-        
+
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (worldBlacklist.contains(player.getWorld().getName())) continue;
-            
+            if (worldBlacklist.contains(player.getWorld().getName()))
+                continue;
+
             player.sendMessage(plugin.colorize(message));
             player.sendMessage(plugin.colorize(descMessage));
-            
-            // Play sound
             String soundName = plugin.getConfig().getString("broadcast.sound", "ENTITY_ENDER_DRAGON_GROWL");
             try {
                 Sound sound = Sound.valueOf(soundName);
                 float volume = (float) plugin.getConfig().getDouble("broadcast.sound-volume", 1.0);
                 float pitch = (float) plugin.getConfig().getDouble("broadcast.sound-pitch", 1.0);
                 player.playSound(player.getLocation(), sound, volume, pitch);
-            } catch (IllegalArgumentException ignored) {}
-            
-            // Show title
+            } catch (IllegalArgumentException ignored) {
+            }
             if (plugin.getConfig().getBoolean("title.enabled", true)) {
                 int fadeIn = plugin.getConfig().getInt("title.fade-in", 10) * 50;
                 int stay = plugin.getConfig().getInt("title.stay", 60) * 50;
                 int fadeOut = plugin.getConfig().getInt("title.fade-out", 20) * 50;
-                
+
                 Title title = Title.title(
                         plugin.colorize("&6&l⚡ " + twistName),
                         plugin.colorize("&7" + twistDesc),
-                        Title.Times.times(Duration.ofMillis(fadeIn), Duration.ofMillis(stay), Duration.ofMillis(fadeOut))
-                );
+                        Title.Times.times(Duration.ofMillis(fadeIn), Duration.ofMillis(stay),
+                                Duration.ofMillis(fadeOut)));
                 player.showTitle(title);
             }
         }
@@ -160,23 +152,24 @@ public class TwistManager {
 
     private void applyTwist(Twist twist) {
         Collection<? extends Player> players = getAffectedPlayers();
-        
+
         switch (twist) {
-            case DREAM_LUCK -> {} // Handled in listener
-            
+            case DREAM_LUCK -> {
+            } // Handled in listener
+
             case CHAD_GEAR -> {
                 for (Player player : players) {
-                    // Save and clear armor
                     applyLeatherArmor(player);
                 }
             }
-            
-            case STAY_AWAY -> {} // Handled in listener
-            
+
+            case STAY_AWAY -> {
+            } // Handled in listener
+
             case GHOST_MODE -> {
                 for (Player player : players) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
-                    // Hide all players from each other
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
                     for (Player other : players) {
                         if (!player.equals(other)) {
                             player.hidePlayer(plugin, other);
@@ -184,11 +177,13 @@ public class TwistManager {
                     }
                 }
             }
-            
-            case SQUID_GAME -> {} // Handled in listener
-            
-            case FAITH_LEAP -> {} // Handled in listener
-            
+
+            case SQUID_GAME -> {
+            } // Handled in listener
+
+            case FAITH_LEAP -> {
+            } // Handled in listener
+
             case BIRD_MODE -> {
                 for (Player player : players) {
                     ItemStack elytra = new ItemStack(Material.ELYTRA);
@@ -199,53 +194,63 @@ public class TwistManager {
                     player.getInventory().setChestplate(elytra);
                 }
             }
-            
+
             case DWARF_MODE -> {
                 for (Player player : players) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, Integer.MAX_VALUE, 2, false, false));
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.HASTE, Integer.MAX_VALUE, 2, false, false));
                 }
             }
-            
-            case PIGLIN_LIFE -> {} // Handled in listener
-            
+
+            case PIGLIN_LIFE -> {
+            } // Handled in listener
+
             case HEALTH_PACK -> {
                 for (Player player : players) {
                     player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(40.0);
                 }
             }
-            
-            case REVERSE_KARMA -> {} // Handled in listener
-            
+
+            case REVERSE_KARMA -> {
+            } // Handled in listener
+
             case SURPRISE -> startTNTRain();
-            
+
             case LOW_GRAVITY -> {
                 for (Player player : players) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 0, false, false));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, Integer.MAX_VALUE, 3, false, false));
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 0, false, false));
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.JUMP_BOOST, Integer.MAX_VALUE, 3, false, false));
                 }
             }
-            
+
             case SPEED_DEMON -> {
                 for (Player player : players) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 3, false, false));
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 3, false, false));
                 }
             }
-            
+
             case TURTLE_MODE -> {
                 for (Player player : players) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 1, false, false));
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 1, false, false));
                 }
             }
-            
-            case BOUNCY_WORLD -> {} // Handled in listener
-            
+
+            case BOUNCY_WORLD -> {
+            } // Handled in listener
+
             case DOLPHIN_GRACE -> {
                 for (Player player : players) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, Integer.MAX_VALUE, 1, false, false));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, Integer.MAX_VALUE, 0, false, false));
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.DOLPHINS_GRACE, Integer.MAX_VALUE, 1, false, false));
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.WATER_BREATHING, Integer.MAX_VALUE, 0, false, false));
                 }
             }
-            
+
             case GLASS_CANNON -> {
                 for (Player player : players) {
                     player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(4.0);
@@ -253,51 +258,63 @@ public class TwistManager {
                     player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(30.0); // 3x damage
                 }
             }
-            
-            case THORNS_EVERYWHERE -> {} // Handled in listener
-            
-            case VAMPIRIC -> {} // Handled in listener
-            
-            case ONE_TAP -> {} // Handled in listener
-            
-            case PACIFIST -> {} // Handled in listener
-            
-            case EXPLOSIVE_ARROWS -> {} // Handled in listener
-            
-            case FIRE_TOUCH -> {} // Handled in listener
-            
+
+            case THORNS_EVERYWHERE -> {
+            } // Handled in listener
+
+            case VAMPIRIC -> {
+            } // Handled in listener
+
+            case ONE_TAP -> {
+            } // Handled in listener
+
+            case PACIFIST -> {
+            } // Handled in listener
+
+            case EXPLOSIVE_ARROWS -> {
+            } // Handled in listener
+
+            case FIRE_TOUCH -> {
+            } // Handled in listener
+
             case BREEZE_ATTACK -> startBreezeAttacks();
-            
-            case VAULT_HUNTER -> {} // Handled in listener
-            
-            case MACE_MAYHEM -> {} // Handled in listener
-            
+
+            case VAULT_HUNTER -> {
+            } // Handled in listener
+
+            case MACE_MAYHEM -> {
+            } // Handled in listener
+
             case OMINOUS_AURA -> {
                 for (Player player : players) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.BAD_OMEN, Integer.MAX_VALUE, 0, false, false));
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.BAD_OMEN, Integer.MAX_VALUE, 0, false, false));
                 }
             }
-            
+
             case INVENTORY_SWAP -> swapInventories();
-            
+
             case POSITION_SHUFFLE -> shufflePositions();
-            
+
             case RANDOM_TELEPORT -> startRandomTeleports();
-            
-            case BACKWARDS_DAY -> {} // Client-side, would need packets - skip for now
-            
+
+            case BACKWARDS_DAY -> {
+            } // Client-side, would need packets - skip for now
+
             case NO_JUMP -> {
                 for (Player player : players) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, Integer.MAX_VALUE, 128, false, false)); // -7 jump
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.JUMP_BOOST, Integer.MAX_VALUE, 128, false, false)); // -7
                 }
             }
-            
+
             case BLINDFOLDED -> {
                 for (Player player : players) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0, false, false));
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0, false, false));
                 }
             }
-            
+
             case ETERNAL_NIGHT -> {
                 for (World world : Bukkit.getWorlds()) {
                     if (!worldBlacklist.contains(world.getName())) {
@@ -306,55 +323,59 @@ public class TwistManager {
                     }
                 }
             }
-            
+
             case RAIN_OF_FIRE -> startFireRain();
-            
+
             case LIGHTNING_STORM -> startLightningStorm();
-            
+
             case MOB_MAYHEM -> startMobSpawning();
-            
-            case SHARED_DAMAGE -> {} // Handled in listener
-            
-            case LUCKY_BLOCKS -> {} // Handled in listener
-            
-            case NO_TOOLS -> {} // Handled in listener
-            
+
+            case SHARED_DAMAGE -> {
+            } // Handled in listener
+
+            case LUCKY_BLOCKS -> {
+            } // Handled in listener
+
+            case NO_TOOLS -> {
+            } // Handled in listener
+
             case MAGNETIC -> startMagneticEffect();
-            
+
             case STARTER_KIT -> giveStarterKits();
-            
+
             case GIANT_MODE -> {
                 for (Player player : players) {
                     player.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(2.0);
                 }
             }
-            
+
             case BABY_MODE -> {
                 for (Player player : players) {
                     player.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(0.5);
                 }
             }
-            
+
             case LEVITATION -> {
                 for (Player player : players) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, Integer.MAX_VALUE, 0, false, false));
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.LEVITATION, Integer.MAX_VALUE, 0, false, false));
                 }
             }
-            
+
             case FREEZE -> {
                 for (Player player : players) {
                     player.setFreezeTicks(200); // 10 seconds
                     player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 200, 255, false, false));
                 }
             }
-            
+
             case HOT_POTATO -> startHotPotato();
         }
     }
 
     private void cleanupTwist(Twist twist) {
         Collection<? extends Player> players = Bukkit.getOnlinePlayers();
-        
+
         switch (twist) {
             case CHAD_GEAR, BIRD_MODE -> {
                 for (Player player : players) {
@@ -364,7 +385,7 @@ public class TwistManager {
                     player.getInventory().setBoots(null);
                 }
             }
-            
+
             case GHOST_MODE -> {
                 for (Player player : players) {
                     player.removePotionEffect(PotionEffectType.INVISIBILITY);
@@ -373,76 +394,76 @@ public class TwistManager {
                     }
                 }
             }
-            
+
             case DWARF_MODE -> {
                 for (Player player : players) {
                     player.removePotionEffect(PotionEffectType.HASTE);
                 }
             }
-            
+
             case HEALTH_PACK, GLASS_CANNON -> {
                 for (Player player : players) {
                     player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20.0);
                     player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(1.0);
                 }
             }
-            
+
             case LOW_GRAVITY -> {
                 for (Player player : players) {
                     player.removePotionEffect(PotionEffectType.SLOW_FALLING);
                     player.removePotionEffect(PotionEffectType.JUMP_BOOST);
                 }
             }
-            
+
             case SPEED_DEMON -> {
                 for (Player player : players) {
                     player.removePotionEffect(PotionEffectType.SPEED);
                 }
             }
-            
+
             case TURTLE_MODE -> {
                 for (Player player : players) {
                     player.removePotionEffect(PotionEffectType.SLOWNESS);
                 }
             }
-            
+
             case DOLPHIN_GRACE -> {
                 for (Player player : players) {
                     player.removePotionEffect(PotionEffectType.DOLPHINS_GRACE);
                     player.removePotionEffect(PotionEffectType.WATER_BREATHING);
                 }
             }
-            
+
             case OMINOUS_AURA -> {
                 for (Player player : players) {
                     player.removePotionEffect(PotionEffectType.BAD_OMEN);
                 }
             }
-            
+
             case NO_JUMP -> {
                 for (Player player : players) {
                     player.removePotionEffect(PotionEffectType.JUMP_BOOST);
                 }
             }
-            
+
             case BLINDFOLDED -> {
                 for (Player player : players) {
                     player.removePotionEffect(PotionEffectType.BLINDNESS);
                 }
             }
-            
+
             case ETERNAL_NIGHT -> {
                 for (World world : Bukkit.getWorlds()) {
                     world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
                 }
             }
-            
+
             case GIANT_MODE, BABY_MODE -> {
                 for (Player player : players) {
                     player.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(1.0);
                 }
             }
-            
+
             case LEVITATION -> {
                 for (Player player : players) {
                     player.removePotionEffect(PotionEffectType.LEVITATION);
@@ -450,8 +471,6 @@ public class TwistManager {
             }
         }
     }
-
-    // === Helper Methods ===
 
     private Collection<? extends Player> getAffectedPlayers() {
         return Bukkit.getOnlinePlayers().stream()
@@ -465,7 +484,7 @@ public class TwistManager {
         ItemStack chestplate = createCursedLeather(Material.LEATHER_CHESTPLATE);
         ItemStack leggings = createCursedLeather(Material.LEATHER_LEGGINGS);
         ItemStack boots = createCursedLeather(Material.LEATHER_BOOTS);
-        
+
         player.getInventory().setHelmet(helmet);
         player.getInventory().setChestplate(chestplate);
         player.getInventory().setLeggings(leggings);
@@ -483,6 +502,7 @@ public class TwistManager {
     private void startTNTRain() {
         effectTask = new BukkitRunnable() {
             int ticks = 0;
+
             @Override
             public void run() {
                 if (ticks++ >= 9) {
@@ -494,8 +514,7 @@ public class TwistManager {
                         Location loc = player.getLocation().add(
                                 random.nextDouble() * 10 - 5,
                                 15 + i * 3,
-                                random.nextDouble() * 10 - 5
-                        );
+                                random.nextDouble() * 10 - 5);
                         TNTPrimed tnt = player.getWorld().spawn(loc, TNTPrimed.class);
                         tnt.setFuseTicks(80 + i * 15);
                     }
@@ -510,14 +529,11 @@ public class TwistManager {
             public void run() {
                 for (Player player : getAffectedPlayers()) {
                     if (random.nextInt(100) < 20) { // 20% chance per cycle
-                        // Launch player with wind
                         player.setVelocity(player.getVelocity().add(
                                 new org.bukkit.util.Vector(
                                         random.nextDouble() * 2 - 1,
                                         0.5 + random.nextDouble(),
-                                        random.nextDouble() * 2 - 1
-                                )
-                        ));
+                                        random.nextDouble() * 2 - 1)));
                         player.playSound(player.getLocation(), Sound.ENTITY_BREEZE_WIND_BURST, 1.0f, 1.0f);
                     }
                 }
@@ -527,17 +543,14 @@ public class TwistManager {
 
     private void swapInventories() {
         List<Player> players = new ArrayList<>(getAffectedPlayers());
-        if (players.size() < 2) return;
-        
+        if (players.size() < 2)
+            return;
+
         Collections.shuffle(players);
-        
-        // Store all inventories
         Map<Player, ItemStack[]> inventories = new HashMap<>();
         for (Player player : players) {
             inventories.put(player, player.getInventory().getContents().clone());
         }
-        
-        // Swap inventories in circular fashion
         for (int i = 0; i < players.size(); i++) {
             Player current = players.get(i);
             Player next = players.get((i + 1) % players.size());
@@ -548,15 +561,16 @@ public class TwistManager {
 
     private void shufflePositions() {
         List<Player> players = new ArrayList<>(getAffectedPlayers());
-        if (players.size() < 2) return;
-        
+        if (players.size() < 2)
+            return;
+
         List<Location> locations = new ArrayList<>();
         for (Player player : players) {
             locations.add(player.getLocation().clone());
         }
-        
+
         Collections.shuffle(locations);
-        
+
         for (int i = 0; i < players.size(); i++) {
             players.get(i).teleport(locations.get(i));
             players.get(i).sendMessage(plugin.colorize(plugin.getPrefix() + "&eYou were teleported!"));
@@ -572,8 +586,7 @@ public class TwistManager {
                         Location loc = player.getLocation().add(
                                 random.nextInt(20) - 10,
                                 0,
-                                random.nextInt(20) - 10
-                        );
+                                random.nextInt(20) - 10);
                         loc.setY(player.getWorld().getHighestBlockYAt(loc) + 1);
                         player.teleport(loc);
                     }
@@ -590,8 +603,7 @@ public class TwistManager {
                     Location loc = player.getLocation().add(
                             random.nextInt(10) - 5,
                             0,
-                            random.nextInt(10) - 5
-                    );
+                            random.nextInt(10) - 5);
                     loc.setY(player.getWorld().getHighestBlockYAt(loc));
                     loc.getBlock().setType(Material.FIRE);
                 }
@@ -608,8 +620,7 @@ public class TwistManager {
                         Location loc = player.getLocation().add(
                                 random.nextInt(16) - 8,
                                 0,
-                                random.nextInt(16) - 8
-                        );
+                                random.nextInt(16) - 8);
                         player.getWorld().strikeLightning(loc);
                     }
                 }
@@ -618,7 +629,7 @@ public class TwistManager {
     }
 
     private void startMobSpawning() {
-        EntityType[] mobs = {EntityType.ZOMBIE, EntityType.SKELETON, EntityType.SPIDER, EntityType.CREEPER};
+        EntityType[] mobs = { EntityType.ZOMBIE, EntityType.SKELETON, EntityType.SPIDER, EntityType.CREEPER };
         effectTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -626,8 +637,7 @@ public class TwistManager {
                     Location loc = player.getLocation().add(
                             random.nextInt(10) - 5,
                             0,
-                            random.nextInt(10) - 5
-                    );
+                            random.nextInt(10) - 5);
                     loc.setY(player.getWorld().getHighestBlockYAt(loc) + 1);
                     player.getWorld().spawnEntity(loc, mobs[random.nextInt(mobs.length)]);
                 }
@@ -654,12 +664,16 @@ public class TwistManager {
 
     private void giveStarterKits() {
         ItemStack[][] kits = {
-                {new ItemStack(Material.IRON_SWORD), new ItemStack(Material.IRON_PICKAXE), new ItemStack(Material.COOKED_BEEF, 16)},
-                {new ItemStack(Material.BOW), new ItemStack(Material.ARROW, 32), new ItemStack(Material.LEATHER_CHESTPLATE)},
-                {new ItemStack(Material.DIAMOND, 5), new ItemStack(Material.IRON_INGOT, 16), new ItemStack(Material.GOLDEN_APPLE, 3)},
-                {new ItemStack(Material.ENDER_PEARL, 4), new ItemStack(Material.GOLDEN_APPLE, 2), new ItemStack(Material.SHIELD)}
+                { new ItemStack(Material.IRON_SWORD), new ItemStack(Material.IRON_PICKAXE),
+                        new ItemStack(Material.COOKED_BEEF, 16) },
+                { new ItemStack(Material.BOW), new ItemStack(Material.ARROW, 32),
+                        new ItemStack(Material.LEATHER_CHESTPLATE) },
+                { new ItemStack(Material.DIAMOND, 5), new ItemStack(Material.IRON_INGOT, 16),
+                        new ItemStack(Material.GOLDEN_APPLE, 3) },
+                { new ItemStack(Material.ENDER_PEARL, 4), new ItemStack(Material.GOLDEN_APPLE, 2),
+                        new ItemStack(Material.SHIELD) }
         };
-        
+
         for (Player player : getAffectedPlayers()) {
             ItemStack[] kit = kits[random.nextInt(kits.length)];
             for (ItemStack item : kit) {
@@ -671,32 +685,34 @@ public class TwistManager {
 
     private void startHotPotato() {
         List<Player> players = new ArrayList<>(getAffectedPlayers());
-        if (players.isEmpty()) return;
-        
+        if (players.isEmpty())
+            return;
+
         Player holder = players.get(random.nextInt(players.size()));
         ItemStack potato = new ItemStack(Material.BAKED_POTATO);
         ItemMeta meta = potato.getItemMeta();
         meta.displayName(plugin.colorize("&c&l🔥 HOT POTATO 🔥"));
         meta.setEnchantmentGlintOverride(true);
         potato.setItemMeta(meta);
-        
+
         holder.getInventory().addItem(potato);
         Bukkit.broadcast(plugin.colorize(plugin.getPrefix() + "&c" + holder.getName() + " &ehas the hot potato!"));
-        
+
         effectTask = new BukkitRunnable() {
             int countdown = 30;
+
             @Override
             public void run() {
                 countdown--;
                 if (countdown <= 0) {
-                    // Find who has the potato
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         for (ItemStack item : p.getInventory().getContents()) {
-                            if (item != null && item.getType() == Material.BAKED_POTATO && 
+                            if (item != null && item.getType() == Material.BAKED_POTATO &&
                                     item.getItemMeta() != null && item.getItemMeta().hasEnchantmentGlintOverride()) {
                                 p.getWorld().createExplosion(p.getLocation(), 3f, false, false);
                                 p.getInventory().remove(item);
-                                Bukkit.broadcast(plugin.colorize(plugin.getPrefix() + "&c" + p.getName() + " &eexploded with the hot potato!"));
+                                Bukkit.broadcast(plugin.colorize(
+                                        plugin.getPrefix() + "&c" + p.getName() + " &eexploded with the hot potato!"));
                                 cancel();
                                 return;
                             }
@@ -704,13 +720,12 @@ public class TwistManager {
                     }
                     cancel();
                 } else if (countdown <= 10) {
-                    Bukkit.broadcast(plugin.colorize(plugin.getPrefix() + "&c" + countdown + " seconds until explosion!"));
+                    Bukkit.broadcast(
+                            plugin.colorize(plugin.getPrefix() + "&c" + countdown + " seconds until explosion!"));
                 }
             }
         }.runTaskTimer(plugin, 20L, 20L);
     }
-
-    // === Getters ===
 
     public Twist getCurrentTwist() {
         return currentTwist;

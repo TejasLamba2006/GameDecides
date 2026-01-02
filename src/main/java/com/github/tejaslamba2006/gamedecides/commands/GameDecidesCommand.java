@@ -21,9 +21,10 @@ public class GameDecidesCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+            @NotNull String[] args) {
         if (!sender.hasPermission("gamedecides.admin")) {
-            sender.sendMessage(plugin.colorize(plugin.getPrefix() + 
+            sender.sendMessage(plugin.colorize(plugin.getPrefix() +
                     plugin.getConfig().getString("messages.no-permission")));
             return true;
         }
@@ -36,31 +37,31 @@ public class GameDecidesCommand implements CommandExecutor, TabCompleter {
         switch (args[0].toLowerCase()) {
             case "start" -> {
                 if (plugin.getTwistManager().isRunning()) {
-                    sender.sendMessage(plugin.colorize(plugin.getPrefix() + 
+                    sender.sendMessage(plugin.colorize(plugin.getPrefix() +
                             plugin.getConfig().getString("messages.already-running")));
                 } else {
                     plugin.getTwistManager().start();
-                    sender.sendMessage(plugin.colorize(plugin.getPrefix() + 
+                    sender.sendMessage(plugin.colorize(plugin.getPrefix() +
                             plugin.getConfig().getString("messages.started")));
                 }
             }
             case "stop" -> {
                 if (!plugin.getTwistManager().isRunning()) {
-                    sender.sendMessage(plugin.colorize(plugin.getPrefix() + 
+                    sender.sendMessage(plugin.colorize(plugin.getPrefix() +
                             plugin.getConfig().getString("messages.not-running")));
                 } else {
                     plugin.getTwistManager().stop();
-                    sender.sendMessage(plugin.colorize(plugin.getPrefix() + 
+                    sender.sendMessage(plugin.colorize(plugin.getPrefix() +
                             plugin.getConfig().getString("messages.stopped")));
                 }
             }
             case "skip" -> {
                 if (!plugin.getTwistManager().isRunning()) {
-                    sender.sendMessage(plugin.colorize(plugin.getPrefix() + 
+                    sender.sendMessage(plugin.colorize(plugin.getPrefix() +
                             plugin.getConfig().getString("messages.not-running")));
                 } else {
                     plugin.getTwistManager().skip();
-                    sender.sendMessage(plugin.colorize(plugin.getPrefix() + 
+                    sender.sendMessage(plugin.colorize(plugin.getPrefix() +
                             plugin.getConfig().getString("messages.skipped")));
                 }
             }
@@ -71,26 +72,26 @@ public class GameDecidesCommand implements CommandExecutor, TabCompleter {
                     String desc = plugin.getTwistManager().getTwistDescription(twist);
                     sender.sendMessage(plugin.colorize("&e" + name + " &7- " + desc));
                 }
-                sender.sendMessage(plugin.colorize("&7Total: &e" + 
+                sender.sendMessage(plugin.colorize("&7Total: &e" +
                         plugin.getTwistManager().getEnabledTwists().size() + " twists"));
             }
             case "info" -> {
                 sender.sendMessage(plugin.colorize("&6=== GameDecides Info ==="));
-                sender.sendMessage(plugin.colorize("&7Status: " + 
+                sender.sendMessage(plugin.colorize("&7Status: " +
                         (plugin.getTwistManager().isRunning() ? "&aRunning" : "&cStopped")));
                 if (plugin.getTwistManager().getCurrentTwist() != null) {
                     String currentName = plugin.getTwistManager().getTwistName(
                             plugin.getTwistManager().getCurrentTwist());
                     sender.sendMessage(plugin.colorize("&7Current Twist: &e" + currentName));
                 }
-                sender.sendMessage(plugin.colorize("&7Enabled Twists: &e" + 
+                sender.sendMessage(plugin.colorize("&7Enabled Twists: &e" +
                         plugin.getTwistManager().getEnabledTwists().size()));
-                sender.sendMessage(plugin.colorize("&7Interval: &e" + 
+                sender.sendMessage(plugin.colorize("&7Interval: &e" +
                         plugin.getConfig().getInt("twist-interval") + " seconds"));
             }
             case "reload" -> {
                 plugin.reload();
-                sender.sendMessage(plugin.colorize(plugin.getPrefix() + 
+                sender.sendMessage(plugin.colorize(plugin.getPrefix() +
                         plugin.getConfig().getString("messages.reload")));
             }
             default -> sendHelp(sender);
@@ -110,9 +111,10 @@ public class GameDecidesCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
+            @NotNull String label, @NotNull String[] args) {
         List<String> completions = new ArrayList<>();
-        
+
         if (args.length == 1) {
             List<String> subcommands = List.of("start", "stop", "skip", "list", "info", "reload");
             for (String sub : subcommands) {
@@ -121,7 +123,7 @@ public class GameDecidesCommand implements CommandExecutor, TabCompleter {
                 }
             }
         }
-        
+
         return completions;
     }
 }

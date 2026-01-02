@@ -5,6 +5,7 @@ All notable changes to GameDecides will be documented in this file.
 ## [1.0.0] - 2025-01-02
 
 ### Added
+
 - Initial release with 45+ unique twists
 - Classic twists: Dream Luck, Chad Gear, Stay Away, Ghost Mode, Squid Game, Faith Leap, Bird Mode, Dwarf Mode, Piglin Life, Health Pack, Reverse Karma, Surprise
 - Movement twists: Low Gravity, Speed Demon, Turtle Mode, Bouncy World, Dolphin Grace

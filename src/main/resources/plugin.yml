@@ -1,7 +1,7 @@
 name: GameDecides
 version: ${project.version}
 main: com.github.tejaslamba2006.gamedecides.GameDecides
-api-version: '1.21'
+api-version: "1.21"
 authors: [TejasLamba2006]
 description: Random game-changing twists that keep gameplay exciting
 website: https://modrinth.com/plugin/gamedecides

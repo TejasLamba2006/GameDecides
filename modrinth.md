@@ -7,6 +7,7 @@ Every few minutes, the game picks a random twist that changes how everyone plays
 A twist is a temporary rule change that affects all players. Some help you, some hurt you, some are just weird. The plugin has over 45 different twists built in.
 
 Here are some examples:
+
 - No jumping for 2 minutes
 - Everyone gets levitation
 - Inventory shuffles randomly
@@ -18,6 +19,7 @@ Here are some examples:
 ## Good for what?
 
 Works well for:
+
 - Challenge runs with friends
 - Content creation
 - Spicing up boring survival sessions
@@ -33,6 +35,7 @@ You can also force specific twists if you want to try something particular.
 ## Customization
 
 The config lets you:
+
 - Change how often twists happen
 - Turn off specific twists you don't want
 - Adjust twist duration
@@ -40,6 +43,6 @@ The config lets you:
 
 ## Support
 
-Questions? https://discord.gg/7fQPG4Grwt
+Questions? <https://discord.gg/7fQPG4Grwt>
 
 Works with Minecraft 1.21+ on Paper or Spigot.

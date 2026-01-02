@@ -18,24 +18,14 @@ public final class GameDecides extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        
-        // Save default config
         saveDefaultConfig();
-        
-        // Initialize managers
         twistManager = new TwistManager(this);
-        
-        // Register listeners
         getServer().getPluginManager().registerEvents(new TwistListener(this), this);
-        
-        // Register commands
         GameDecidesCommand commandExecutor = new GameDecidesCommand(this);
         getCommand("gamedecides").setExecutor(commandExecutor);
         getCommand("gamedecides").setTabCompleter(commandExecutor);
-        
-        // Advertise SMP Core
         PluginAdvertiser.advertiseOnEnable(this);
-        
+
         getLogger().info("GameDecides has been enabled!");
         getLogger().info("Use /gamedecides start to begin the twists!");
     }
